@@ -141,6 +141,7 @@ OSeaM.views.ResetPassword = OSeaM.View.extend({
   },
   
   onPasswordResetSuccess: function(data) {
+	this.removeAlerts();														// RKu: remove any old alerts fron the list
     var template = OSeaM.loadTemplate('alert-success');
     var content = $(template({
       title: '1402:Password requested',
@@ -150,17 +151,18 @@ OSeaM.views.ResetPassword = OSeaM.View.extend({
     this.$el.find('form').remove();
     this.$el.find('legend').after(content);
   },
+  
   onPasswordResetFailure: function(jqXHR) {
-	this.removeAlerts();														// RKu: remove old alerts fron the list
+	this.removeAlerts();														// RKu: remove any old alerts fron the list
     var template = OSeaM.loadTemplate('alert');
     var msg = '';
     if (jqXHR.status === 404) {
       this.markInvalid(this.fieldUsername, '1404:Username does not exists.');
       this.fieldUsername.focus();
-    } else if (jqXHR.status === 200 && response.code === 400) {
+    } else if (jqXHR.status === 401) {
       this.markInvalid(this.fieldCaptcha, '1013:Invalid captcha.');
       this.fieldCaptcha.val('').focus();
-	  
+	  msg = '1013:Chaptcha does not match';
     } else if (jqXHR.status ===500){											// RKu: user_name not found at DB user_profiles
 			var respHeader = jqXHR.getResponseHeader("Error");					// RKu: get response header text
 			msg = respHeader;													// RKu: assemble user message
